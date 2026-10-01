@@ -19,130 +19,129 @@ type Slide[T any] struct {
 // New returns an empty Slide that holds up to capacity items.
 // A capacity <= 0 selects the default of 16.
 func New[T any](capacity int) *Slide[T] {
-	var q Slide[T]
-	q.init(capacity)
-	return &q
+	var s Slide[T]
+	s.init(capacity)
+	return &s
 }
 
-func (q *Slide[T]) init(capacity int) {
+func (s *Slide[T]) init(capacity int) {
 	if capacity <= 0 {
 		capacity = _defaultCapacity
 	}
-	q.buff = make([]T, capacity+1)
-	q.head = 0
-	q.tail = 0
+	s.buff = make([]T, capacity+1)
+	s.head = 0
+	s.tail = 0
 }
 
-// Empty reports whether q holds no items.
-func (q *Slide[T]) Empty() bool {
-	return q.head == q.tail
+// Empty reports whether the buffer holds no items.
+func (s *Slide[T]) Empty() bool {
+	return s.head == s.tail
 }
 
-// Len returns the number of items in q.
-func (q *Slide[T]) Len() int {
-	if q.head <= q.tail {
-		return q.tail - q.head
+// Len returns the number of items in the buffer.
+func (s *Slide[T]) Len() int {
+	if s.head <= s.tail {
+		return s.tail - s.head
 	}
-	return len(q.buff) - q.head + q.tail
+	return len(s.buff) - s.head + s.tail
 }
 
-// Cap returns the maximum number of items q can hold.
-func (q *Slide[T]) Cap() int {
-	if len(q.buff) == 0 {
+// Cap returns the maximum number of items the buffer can hold.
+func (s *Slide[T]) Cap() int {
+	if len(s.buff) == 0 {
 		return _defaultCapacity
 	}
-	return len(q.buff) - 1
+	return len(s.buff) - 1
 }
 
 // tailInfo returns the internal buffer index of the newest item.
-// q must not be empty.
-func (q *Slide[T]) tailInfo() int {
-	return (len(q.buff) + q.tail - 1) % len(q.buff)
+// The buffer must not be empty.
+func (s *Slide[T]) tailInfo() int {
+	return (len(s.buff) + s.tail - 1) % len(s.buff)
 }
 
-// Clear removes all items from q, keeping its capacity.
-func (q *Slide[T]) Clear() {
-	clear(q.buff)
-	q.head = 0
-	q.tail = 0
+// Clear removes all items from the buffer, keeping its capacity.
+func (s *Slide[T]) Clear() {
+	clear(s.buff)
+	s.head = 0
+	s.tail = 0
 }
 
-// Push appends x at the tail. If q is full, the oldest item is discarded.
-func (q *Slide[T]) Push(x T) {
-	if len(q.buff) == 0 {
-		q.init(_defaultCapacity)
+// Push adds item to the buffer (tail). If the buffer is full, the oldest item is discarded.
+func (s *Slide[T]) Push(item T) {
+	if len(s.buff) == 0 {
+		s.init(_defaultCapacity)
 	}
 
-	if (q.tail+1)%len(q.buff) == q.head {
-		q.head = (q.head + 1) % len(q.buff)
+	if (s.tail+1)%len(s.buff) == s.head {
+		_, _ = s.PopHead()
 	}
 
-	q.buff[q.tail] = x
-	q.tail = (q.tail + 1) % len(q.buff)
+	s.buff[s.tail] = item
+	s.tail = (s.tail + 1) % len(s.buff)
 }
 
-// TryPopHead removes and returns the oldest item.
-// It reports false if q is empty.
-func (q *Slide[T]) TryPopHead() (x T, ok bool) {
-	if q.Empty() {
+// PopHead removes and returns the oldest (head) item. It reports false if the buffer is empty.
+func (s *Slide[T]) PopHead() (x T, ok bool) {
+	if s.Empty() {
 		return x, false
 	}
 
-	x = q.buff[q.head]
+	x = s.buff[s.head]
 	var zero T
-	q.buff[q.head] = zero
-	q.head = (q.head + 1) % len(q.buff)
+	s.buff[s.head] = zero
+	s.head = (s.head + 1) % len(s.buff)
 	return x, true
 }
 
-// TryPopTail removes and returns the newest item.
-// It reports false if q is empty.
-func (q *Slide[T]) TryPopTail() (x T, ok bool) {
-	if q.Empty() {
+// PopTail removes and returns the newest (tail) item. It reports false if the buffer is empty.
+func (s *Slide[T]) PopTail() (x T, ok bool) {
+	if s.Empty() {
 		return x, false
 	}
-	exTail := q.tailInfo()
-	x = q.buff[exTail]
+	exTail := s.tailInfo()
+	x = s.buff[exTail]
 	var zero T
-	q.buff[exTail] = zero
-	q.tail = exTail
+	s.buff[exTail] = zero
+	s.tail = exTail
 	return x, true
 }
 
-// TryPeekTail returns the newest item without removing it.
-// It reports false if q is empty.
-func (q *Slide[T]) TryPeekTail() (x T, ok bool) {
-	if q.Empty() {
+// PeekTail returns the newest (tail) item without removing it. It reports false if the buffer is empty.
+func (s *Slide[T]) PeekTail() (x T, ok bool) {
+	if s.Empty() {
 		return x, false
 	}
-	return q.buff[q.tailInfo()], true
+	return s.buff[s.tailInfo()], true
 }
 
-// TryPeekHead returns the oldest item without removing it.
-// It reports false if q is empty.
-func (q *Slide[T]) TryPeekHead() (x T, ok bool) {
-	if q.Empty() {
+// PeekHead returns the oldest (head) item without removing it. It reports false if the buffer is empty.
+func (s *Slide[T]) PeekHead() (x T, ok bool) {
+	if s.Empty() {
 		return x, false
 	}
-	return q.buff[q.head], true
+	return s.buff[s.head], true
 }
 
-// SnapshotQueue appends the items of q to dst, oldest first, and returns the
+// SnapshotQueue appends the items of the buffer to dst, oldest first, and returns the
 // extended slice. Pass a dst with spare capacity to avoid allocation, or nil.
-func (q *Slide[T]) SnapshotQueue(dst []T) []T {
-	if q.head <= q.tail {
-		return append(dst, q.buff[q.head:q.tail]...)
+func (s *Slide[T]) SnapshotQueue(dst []T) []T {
+	if s.Empty() {
+		return dst
+	}
+	if s.head < s.tail {
+		return append(dst, s.buff[s.head:s.tail]...)
 	}
 
-	dst = append(dst, q.buff[q.head:]...)
-	return append(dst, q.buff[:q.tail]...)
+	dst = append(dst, s.buff[s.head:]...)
+	return append(dst, s.buff[:s.tail]...)
 }
 
-// SnapshotStack appends the items of q to dst, newest first, and returns the
+// SnapshotStack appends the items of the buffer to dst, newest first, and returns the
 // extended slice. Pass a dst with spare capacity to avoid allocation, or nil.
-func (q *Slide[T]) SnapshotStack(dst []T) []T {
+func (s *Slide[T]) SnapshotStack(dst []T) []T {
 	n := len(dst)
-	dst = q.SnapshotQueue(dst)
+	dst = s.SnapshotQueue(dst)
 	slices.Reverse(dst[n:])
 	return dst
 }

@@ -11,11 +11,11 @@ func TestZeroValue(t *testing.T) {
 	if !q.Empty() {
 		t.Fatal("zero value should be empty")
 	}
-	if _, ok := q.TryPopHead(); ok {
-		t.Fatal("TryPopHead on empty buffer returned ok")
+	if _, ok := q.PopHead(); ok {
+		t.Fatal("PopHead on empty buffer returned ok")
 	}
-	if _, ok := q.TryPopTail(); ok {
-		t.Fatal("TryPopTail on empty buffer returned ok")
+	if _, ok := q.PopTail(); ok {
+		t.Fatal("PopTail on empty buffer returned ok")
 	}
 
 	q.Push(1)
@@ -24,11 +24,11 @@ func TestZeroValue(t *testing.T) {
 	if got := q.Len(); got != 2 {
 		t.Fatalf("Len() = %d, want 2", got)
 	}
-	if got, ok := q.TryPeekHead(); !ok || got != 1 {
-		t.Fatalf("TryPeekHead() = %d, %v, want 1, true", got, ok)
+	if got, ok := q.PeekHead(); !ok || got != 1 {
+		t.Fatalf("PeekHead() = %d, %v, want 1, true", got, ok)
 	}
-	if got, ok := q.TryPeekTail(); !ok || got != 2 {
-		t.Fatalf("TryPeekTail() = %d, %v, want 2, true", got, ok)
+	if got, ok := q.PeekTail(); !ok || got != 2 {
+		t.Fatalf("PeekTail() = %d, %v, want 2, true", got, ok)
 	}
 }
 
@@ -69,11 +69,11 @@ func TestPopBothEnds(t *testing.T) {
 		q.Push(i)
 	}
 
-	if got, ok := q.TryPopHead(); !ok || got != 1 {
-		t.Fatalf("TryPopHead() = %d, %v, want 1, true", got, ok)
+	if got, ok := q.PopHead(); !ok || got != 1 {
+		t.Fatalf("PopHead() = %d, %v, want 1, true", got, ok)
 	}
-	if got, ok := q.TryPopTail(); !ok || got != 4 {
-		t.Fatalf("TryPopTail() = %d, %v, want 4, true", got, ok)
+	if got, ok := q.PopTail(); !ok || got != 4 {
+		t.Fatalf("PopTail() = %d, %v, want 4, true", got, ok)
 	}
 	if got := q.SnapshotQueue(nil); !slices.Equal(got, []int{2, 3}) {
 		t.Fatalf("SnapshotQueue() = %v, want [2 3]", got)
@@ -175,9 +175,9 @@ func TestRemovalReleasesReferences(t *testing.T) {
 
 	t.Run("pop", func(t *testing.T) {
 		q := newFull()
-		q.TryPopHead()
-		q.TryPopTail()
-		q.TryPopHead()
+		q.PopHead()
+		q.PopTail()
+		q.PopHead()
 		assertAllNil(t, q)
 	})
 

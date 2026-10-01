@@ -13,8 +13,8 @@ func ExampleSlide() {
 	}
 	fmt.Println(q.Len(), q.SnapshotQueue(nil))
 
-	head, _ := q.TryPopHead()
-	tail, _ := q.TryPopTail()
+	head, _ := q.PopHead()
+	tail, _ := q.PopTail()
 	fmt.Println(head, tail, q.SnapshotQueue(nil))
 	// Output:
 	// 3 [3 4 5]

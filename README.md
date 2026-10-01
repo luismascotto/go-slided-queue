@@ -33,8 +33,8 @@ func main() {
 	}
 	fmt.Println(q.SnapshotQueue(nil)) // [3 4 5]
 
-	head, _ := q.TryPopHead() // 3
-	tail, _ := q.TryPopTail() // 5
+	head, _ := q.PopHead() // 3
+	tail, _ := q.PopTail() // 5
 	fmt.Println(head, tail)
 }
 ```
