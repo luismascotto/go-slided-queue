@@ -1,8 +1,12 @@
-// Package slide provides Slide, a generic fixed-capacity ring buffer that
-// overwrites the oldest item when full.
+// Package slide provides generic fixed-capacity containers that discard the
+// oldest item when full.
 //
-// Items can be pushed at the tail and popped or peeked from either end,
-// so a Slide can be consumed as a FIFO queue or as a LIFO stack.
+//   - Slide is a ring buffer that can be pushed at the tail and popped or
+//     peeked from either end. It is not safe for concurrent use; callers must
+//     synchronize access.
+//   - Queue is a FIFO (First In, First Out) queue backed by a Slide.
+//   - Stack is a LIFO (Last In, First Out) stack backed by a Slide.
 //
-// Slide is not safe for concurrent use; callers must synchronize access.
+// Queue and Stack are safe for concurrent use and must not be copied after
+// first use.
 package slide
