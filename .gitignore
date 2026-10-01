@@ -1,0 +1,12 @@
+# Test and coverage artifacts
+*.test
+*.out
+coverage.*
+*.prof
+
+# Editors and OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
