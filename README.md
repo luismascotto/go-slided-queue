@@ -68,4 +68,4 @@ The zero value of each type is ready to use, with a default capacity of 16.
 
 ## License
 
-[MIT](LICENSE)
+[Apache 2.0](LICENSE)
